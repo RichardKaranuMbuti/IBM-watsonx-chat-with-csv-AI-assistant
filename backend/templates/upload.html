@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}Upload CSV - Data Analysis Platform{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <h1 class="text-2xl font-bold text-gray-900 mb-6">Upload CSV File</h1>
+    
+    <div class="bg-white rounded-lg shadow-md">
+        <form id="uploadForm" class="p-6">
+            <!-- Description Input -->
+            <div class="mb-6">
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-1">
+                    File Description
+                </label>
+                <textarea 
+                    id="description" 
+                    name="description" 
+                    rows="2" 
+                    required
+                    placeholder="Enter a description for your CSV file..."
+                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                ></textarea>
+            </div>
+
+            <!-- File Drop Zone -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    CSV File
+                </label>
+                <div 
+                    id="dropZone"
+                    class="relative border-2 border-dashed border-gray-300 rounded-lg p-6 transition-colors duration-200 ease-in-out hover:border-blue-400"
+                >
+                    <input 
+                        type="file" 
+                        id="fileInput" 
+                        accept=".csv" 
+                        class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        required
+                    >
+                    <div class="text-center">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" 
+                                stroke-width="2" 
+                                stroke-linecap="round" 
+                                stroke-linejoin="round"
+                            />
+                        </svg>
+                        <p class="mt-2 text-sm text-gray-600">
+                            <span class="font-medium text-blue-600 hover:text-blue-500">
+                                Click to upload
+                            </span>
+                            or drag and drop
+                        </p>
+                        <p id="fileNameDisplay" class="mt-1 text-xs text-gray-500">
+                            CSV files only
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upload Button -->
+            <div class="flex justify-end">
+                <button 
+                    type="submit"
+                    class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                    Upload File
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="hidden fixed inset-0 z-50">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+        
+        <div class="fixed inset-0 z-10 overflow-y-auto">
+            <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <div class="relative transform overflow-hidden rounded-lg bg-white px-4 pb-4 pt-5 text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-sm sm:p-6">
+                    <div>
+                        <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
+                            <svg class="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+                            </svg>
+                        </div>
+                        <div class="mt-3 text-center sm:mt-5">
+                            <h3 class="text-base font-semibold leading-6 text-gray-900">
+                                Upload Successful!
+                            </h3>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500">
+                                    Your CSV file has been uploaded successfully. What would you like to do next?
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-5 sm:mt-6 space-y-2">
+                        <button
+                            type="button"
+                            onclick="window.location.href='/chat-page'"
+                            class="inline-flex w-full justify-center rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+                        >
+                            Go to Chat
+                        </button>
+                        <button
+                            type="button"
+                            onclick="resetForm()"
+                            class="inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                        >
+                            Upload Another File
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="spinner rounded-full border-4 border-blue-500 border-t-transparent h-12 w-12"></div>
+    </div>
+</div>
+
+<script>
+    const dropZone = document.getElementById('dropZone');
+    const fileInput = document.getElementById('fileInput');
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const form = document.getElementById('uploadForm');
+    const loadingSpinner = document.getElementById('loadingSpinner');
+    const successModal = document.getElementById('successModal');
+
+    // Drag and drop handling
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+
+    function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+
+    // Highlight drop zone on drag over
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+            dropZone.classList.add('border-blue-500', 'bg-blue-50');
+        });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropZone.addEventListener(eventName, () => {
+            dropZone.classList.remove('border-blue-500', 'bg-blue-50');
+        });
+    });
+
+    // Handle dropped files
+    dropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        
+        if (files.length > 0) {
+            fileInput.files = files;
+            updateFileNameDisplay(files[0]);
+        }
+    });
+
+    // Handle file input change
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+            updateFileNameDisplay(e.target.files[0]);
+        }
+    });
+
+    function updateFileNameDisplay(file) {
+        if (!file.name.endsWith('.csv')) {
+            showFlashMessage('Please select a CSV file', 'error');
+            fileInput.value = '';
+            fileNameDisplay.textContent = 'CSV files only';
+            return;
+        }
+        fileNameDisplay.textContent = file.name;
+    }
+
+    // Handle form submission
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const description = document.getElementById('description').value;
+        const file = fileInput.files[0];
+
+        if (!file) {
+            showFlashMessage('Please select a file', 'error');
+            return;
+        }
+
+        if (!file.name.endsWith('.csv')) {
+            showFlashMessage('Please upload a CSV file', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('description', description);
+        formData.append('file', file);
+
+        loadingSpinner.classList.remove('hidden');
+
+        try {
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData  // FormData will set the correct Content-Type header automatically
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.detail || 'Upload failed');
+            }
+
+            successModal.classList.remove('hidden');
+        } catch (error) {
+            showFlashMessage(`Upload failed: ${error.message}`, 'error');
+        } finally {
+            loadingSpinner.classList.add('hidden');
+        }
+    });
+
+    // Reset form after successful upload
+    function resetForm() {
+        form.reset();
+        fileNameDisplay.textContent = 'CSV files only';
+        successModal.classList.add('hidden');
+    }
+
+    // Handle Enter key in description textarea
+    document.getElementById('description').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            form.requestSubmit();
+        }
+    });
+</script>
+{% endblock %}

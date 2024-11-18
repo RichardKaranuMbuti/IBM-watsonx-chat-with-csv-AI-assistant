@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Data Analysis Platform{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-900 mb-4">Welcome to DataAnalyzer</h1>
+        <p class="text-xl text-gray-600">Your intelligent CSV data analysis platform</p>
+    </div>
+
+    <div class="grid md:grid-cols-3 gap-8 mb-12">
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Upload CSV Files</h2>
+            <p class="text-gray-600 mb-4">Upload your CSV files securely and analyze them with our advanced AI system.</p>
+            <a href="/upload-page" class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">Get Started</a>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Manage Files</h2>
+            <p class="text-gray-600 mb-4">View, organize, and manage all your uploaded CSV files in one place.</p>
+            <a href="/files-page" class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">View Files</a>
+        </div>
+
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Chat Analysis</h2>
+            <p class="text-gray-600 mb-4">Interact with our AI to analyze your data through natural language queries.</p>
+            <a href="/chat-page" class="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition">Start Chat</a>
+        </div>
+    </div>
+
+    <div class="bg-white p-8 rounded-lg shadow-md">
+        <h2 class="text-2xl font-semibold text-gray-900 mb-4">How It Works</h2>
+        <div class="space-y-4">
+            <div class="flex items-start">
+                <div class="flex-shrink-0 h-6 w-6 text-blue-500">1</div>
+                <p class="ml-3 text-gray-600">Upload your CSV files through our secure platform</p>
+            </div>
+            <div class="flex items-start">
+                <div class="flex-shrink-0 h-6 w-6 text-blue-500">2</div>
+                <p class="ml-3 text-gray-600">Select the files you want to analyze</p>
+            </div>
+            <div class="flex items-start">
+                <div class="flex-shrink-0 h-6 w-6 text-blue-500">3</div>
+                <p class="ml-3 text-gray-600">Ask questions about your data in natural language</p>
+            </div>
+            <div class="flex items-start">
+                <div class="flex-shrink-0 h-6 w-6 text-blue-500">4</div>
+                <p class="ml-3 text-gray-600">Get instant insights and visualizations</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
