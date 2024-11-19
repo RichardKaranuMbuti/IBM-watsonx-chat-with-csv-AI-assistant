@@ -121,6 +121,21 @@
     <div id="loadingSpinner" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-50">
         <div class="spinner rounded-full border-4 border-blue-500 border-t-transparent h-12 w-12"></div>
     </div>
+
+     <!-- Flash Message Modal -->
+     <div id="flashModal" class="hidden fixed inset-0 bg-gray-500 bg-opacity-75 flex items-center justify-center z-[9999]">
+        <div class="bg-white p-6 rounded-lg max-w-sm w-full mx-4">
+            <h3 id="flashModalTitle" class="text-lg font-medium mb-4"></h3>
+            <p id="flashModalMessage" class="text-gray-700 mb-6"></p>
+            <div class="flex justify-center">
+                <button id="flashModalCloseBtn" class="px-4 py-2 rounded-md">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+
+
 </div>
 
 <script>
@@ -182,6 +197,41 @@
         fileNameDisplay.textContent = file.name;
     }
 
+    function showuploadFlashMessage(message, type = 'info') {
+        const modal = document.getElementById('flashModal');
+        const titleElement = document.getElementById('flashModalTitle');
+        const messageElement = document.getElementById('flashModalMessage');
+        const closeButton = document.getElementById('flashModalCloseBtn');
+
+        // Set title and styling based on type
+        if (type === 'error') {
+            titleElement.textContent = 'Error';
+            titleElement.className = 'text-lg font-medium mb-4 text-red-600';
+            closeButton.className = 'px-4 py-2 bg-red-600 text-white hover:bg-red-700 rounded-md';
+        } else {
+            titleElement.textContent = 'Information';
+            titleElement.className = 'text-lg font-medium mb-4 text-blue-600';
+            closeButton.className = 'px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-md';
+        }
+
+        // Set message
+        messageElement.textContent = message;
+
+        // Show modal
+        modal.classList.remove('hidden');
+
+        // Close button functionality
+        const closeModal = () => {
+            modal.classList.add('hidden');
+        };
+
+        // Add event listener
+        closeButton.onclick = closeModal;
+
+        // Auto-close after 3 seconds
+        setTimeout(closeModal, 4000);
+    }
+
     // Handle form submission
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -190,12 +240,12 @@
         const file = fileInput.files[0];
 
         if (!file) {
-            showFlashMessage('Please select a file', 'error');
+            showuploadFlashMessage('Please select a file', 'error');
             return;
         }
 
         if (!file.name.endsWith('.csv')) {
-            showFlashMessage('Please upload a CSV file', 'error');
+            showuploadFlashMessage('Please upload a CSV file', 'error');
             return;
         }
 
@@ -218,7 +268,7 @@
 
             successModal.classList.remove('hidden');
         } catch (error) {
-            showFlashMessage(`Upload failed: ${error.message}`, 'error');
+            showuploadFlashMessage(`Upload failed: ${error.message}`, 'error');
         } finally {
             loadingSpinner.classList.add('hidden');
         }

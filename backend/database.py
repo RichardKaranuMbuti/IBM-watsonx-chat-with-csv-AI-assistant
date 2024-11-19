@@ -14,3 +14,10 @@ def get_db():
         yield db
     finally:
         db.close()
+
+# Add this line to create all tables defined in your models
+def create_tables():
+    Base.metadata.create_all(bind=engine)
+
+# Call this function when your application starts
+create_tables()
