@@ -14,6 +14,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi import Request
 from fastapi.responses import HTMLResponse
+import os
+from starlette import status
+import uuid
 
 app = FastAPI()
 router = APIRouter()
@@ -32,17 +35,23 @@ def home(request: Request):
 async def home(request: Request):
     return templates.TemplateResponse("home.html", {"request": request})
 
+
 @router.post("/upload", response_model=schemas.File)
 def upload_file(
-    description: str = Form(...),  # Changed to Form parameter
-    file: UploadFile = File(...),  # Explicitly declare as File
+    description: str = Form(...),
+    file: UploadFile = File(...),
     db: Session = Depends(get_db)
 ):
-    file_path = f"media/{file.filename}"
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
-    return crud.create_file(db, filename=file_path, description=description)
-
+    try:
+        file_path = f"media/{file.filename}"
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+        return crud.create_file(db, filename=file_path, description=description)
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+            detail={"error": str(e)}
+        )
 
 @router.get("/files", response_model=List[schemas.File])
 def get_all_files(db: Session = Depends(get_db)):
