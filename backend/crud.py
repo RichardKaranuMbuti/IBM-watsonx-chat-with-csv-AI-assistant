@@ -6,11 +6,23 @@ from .models import File
 
 
 def create_file(db: Session, filename: str, description: str):
+    # Check if file already exists
+    existing_file = db.query(models.File).filter(models.File.filename == filename).first()
+    
+    if existing_file:
+        # Option 1: Update existing file
+        existing_file.description = description
+        db.commit()
+        db.refresh(existing_file)
+        return existing_file
+    
+    # Option 2: Create new file if it doesn't exist
     db_file = models.File(filename=filename, description=description)
     db.add(db_file)
     db.commit()
     db.refresh(db_file)
     return db_file
+
 
 def get_all_files(db: Session):
     return db.query(models.File).all()
