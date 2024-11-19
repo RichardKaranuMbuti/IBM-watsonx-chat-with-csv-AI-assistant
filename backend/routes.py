@@ -43,16 +43,26 @@ def upload_file(
     db: Session = Depends(get_db)
 ):
     try:
+        # Ensure media directory exists
+        os.makedirs("media", exist_ok=True)
+        
+        # Generate unique filename if needed
         file_path = f"media/{file.filename}"
+        
+        # Save file directly
         with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+            buffer.write(file.file.read())
+        
+        # Create file record in database
         return crud.create_file(db, filename=file_path, description=description)
     except Exception as e:
+        # More descriptive error handling
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
-            detail={"error": str(e)}
+            detail={"error": "File upload failed", "message": str(e)}
         )
-
+    
+    
 @router.get("/files", response_model=List[schemas.File])
 def get_all_files(db: Session = Depends(get_db)):
     return crud.get_all_files(db)
